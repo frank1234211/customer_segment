@@ -14186,7 +14186,7 @@ Once you have performed this implementation, the dataset will be stored in the v
 <div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">outliers_indexs</span> <span class="o">=</span> <span class="p">[]</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">outliers</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="c1"># For each feature find the data points with extreme high or low values</span>
 <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">log_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
     
@@ -14203,10 +14203,10 @@ Once you have performed this implementation, the dataset will be stored in the v
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Data points considered outliers for the feature '</span><span class="si">{}</span><span class="s2">':"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">feature</span><span class="p">))</span>
     <span class="n">display</span><span class="p">(</span><span class="n">log_data</span><span class="p">[</span><span class="o">~</span><span class="p">((</span><span class="n">log_data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">Q1</span> <span class="o">-</span> <span class="n">step</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">log_data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">Q3</span> <span class="o">+</span> <span class="n">step</span><span class="p">))])</span>
     <span class="n">outliers_data</span> <span class="o">=</span> <span class="n">log_data</span><span class="p">[</span><span class="o">~</span><span class="p">((</span><span class="n">log_data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">Q1</span> <span class="o">-</span> <span class="n">step</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">log_data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">Q3</span> <span class="o">+</span> <span class="n">step</span><span class="p">))]</span>
-    <span class="n">outliers_indexs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">outliers_data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="n">outliers</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">outliers_data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
  
 <span class="c1"># OPTIONAL: Select the indices for data points you wish to remove</span>
-<span class="n">outliers</span> <span class="o">=</span> <span class="n">outliers_indexs</span>
+<span class="n">outliers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">outliers</span> <span class="k">if</span> <span class="n">outliers</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span><span class="mi">1</span><span class="p">]))</span>
 
 <span class="c1"># Remove the outliers, if any were specified</span>
 <span class="n">good_data</span> <span class="o">=</span> <span class="n">log_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">log_data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">outliers</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
@@ -14984,14 +14984,22 @@ Once you have performed this implementation, the dataset will be stored in the v
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Answer:</strong></p>
+<p><strong>Refined Answer:</strong></p>
 <ol>
 <li>Are there any data points considered outliers for more than one feature based on the definition above?</li>
-<li>Yes, each of these data points has at least one feature which is beyond an outlier step outside of the IQR.</li>
+<li>Yes. Those data points considered outliers are displayed in the previous code cell.</li>
 <li>Should these data points be removed from the dataset?</li>
-<li>Yes, they are outliers which will influence the generalization of analysis.</li>
-<li>If any data points were added to the outliers list to be removed, explain why.</li>
-<li>They are all outliers judged by Tukey's Method.</li>
+<li><p>Yes, they are outliers which should be removed. Outliers are abnormal and extreme data points which deviate from others data points. Outliers are either caused by error, such as measurement error or experimental error, or by natural. (Sometimes, we can judge the outliers are impossible that they should be caused by error). If outliers are caused by error, it should be removed because we would not like to make model or analysis fit the obvious error. If outliers are just novelties in data, which are not caused by error, it should be also removed when we want to capture generalized pattern of data, because outliers obviously has different pattern which made them abnormal and extreme. Besides, some algorithms are sensitive to outliers, such as K-means. K-means uses SSE(Sum of Squared Error) of each centroid point and other points in same cluser as loss funciton, and calculates centroids in each iteration. Therefore, an outlier in an cluster will strongly make the centroid of the cluster closer to the outlier, which strongly influences clustering result. In conclusion, outliers should be removed.</p>
+</li>
+<li><p>Reference:</p>
+<ul>
+<li><a href="https://towardsdatascience.com/a-brief-overview-of-outlier-detection-techniques-1e0b2c19e561">https://towardsdatascience.com/a-brief-overview-of-outlier-detection-techniques-1e0b2c19e561</a></li>
+<li><a href="https://www.researchgate.net/post/What_is_the_difference_between_noise_and_outlier">https://www.researchgate.net/post/What_is_the_difference_between_noise_and_outlier</a></li>
+</ul>
+</li>
+<li><p>If any data points were added to the outliers list to be removed, explain why.</p>
+</li>
+<li>They are all outliers judged by Tukey's Method considering more than one feature. The reason why to remove outliers is described as above.</li>
 </ol>
 
 </div>
@@ -15076,52 +15084,57 @@ Once you have performed this implementation, the dataset will be stored in the v
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Answer:"><strong>Answer:</strong><a class="anchor-link" href="https://cocalc.com/dac97de4-3136-4fa2-b974-e6e5b81f4f6d/raw/customer_segments.html#Answer:">¶</a></h4><ol>
+<h4 id="Refined-Answer:"><strong>Refined Answer:</strong><a class="anchor-link" href="https://cocalc.com/dac97de4-3136-4fa2-b974-e6e5b81f4f6d/raw/customer_segments.html#Refined-Answer:">¶</a></h4><ol>
 <li>How much variance in the data is explained<em> in total </em>by the first and second principal component?</li>
 <li>0.7252 (0.4993 + 0.2259)</li>
 <li>How much variance in the data is explained by the first four principal components?</li>
 <li>0.9279 (0.4993 + 0.2259 + 0.1049 + 0.0978)</li>
 <li>Using the visualization provided above, talk about each dimension and the cumulative variance explained by each, stressing upon which features are well represented by each dimension(both in terms of positive and negative variance explained). Discuss what the first four dimensions best represent in terms of customer spending.</li>
 <li>First component<ul>
-<li>0.4993 varience</li>
-<li>Feature whose weight is positive and absolute value of weight is higher than 0.5: Detergents_paper  </li>
-<li>Feature whose weight is negative and absolute value of weight is higher than 0.5: None</li>
-<li>This dimension tends to represent spending for prodcut which is not food.</li>
+<li>0.4993 variance</li>
+<li>Customer purchase a lot: Detergents_Paper</li>
+<li>Customer purchase in a medium amount: Milk and Grocery</li>
+<li>Customer purchase a little: Delicateseen</li>
+<li>Customer would not like to purchase: Fresh and Frozen</li>
 </ul>
 </li>
 <li>Second component<ul>
-<li>0.2259 varience</li>
-<li>Feature whose weight is positive and absolute value of weight is higher than 0.5: Fresh and Frozen</li>
-<li>Feature whose weight is negative and absolute value of weight is higher than 0.5: None</li>
-<li>This dimension tends to represent spending for food which is not cooked and exclude milk.</li>
+<li>0.2259 variance</li>
+<li>Customer purchase a lot: Fresh and Frozen</li>
+<li>Customer purchase in a medium amount: Delicateseen</li>
+<li>Customer purchase a little: Milk and Grocery</li>
+<li>Customer would not like to purchase: Detergents_Paper</li>
 </ul>
 </li>
 <li>Third component<ul>
-<li>0.1049 varience</li>
-<li>Feature whose weight is positive and absolute value of weight is higher than 0.5: Delicateseen</li>
-<li>Feature whose weight is negative and absolute value of weight is higher than 0.5: Fresh</li>
-<li>This dimension tends to represent spending for food which is cooked</li>
+<li>0.1049 variance</li>
+<li>Customer purchase a lot: Delicateseen</li>
+<li>Customer purchase a little: Frozen and Milk</li>
+<li>Customer would not like to purchase: Detergents_paper</li>
+<li>Customer never purchase: Fresh</li>
 </ul>
 </li>
 <li>Fourth component<ul>
-<li>0.0978 varience</li>
-<li>Feature whose weight is positive and absolute value of weight is higher than 0.5: Delicateseen</li>
-<li>Feature whose weight is negative and absolute value of weight is higher than 0.5: Frozen</li>
-<li>This dimension tends to represent spending for food which is cooked.</li>
+<li>0.0978 variance</li>
+<li>Customer purchase a lot: Delicateseen</li>
+<li>Customer purchase a little: Frozen, Milk and Grocery</li>
+<li>Customer would not like to purchase: Detergents_paper</li>
+<li>Customer never purchase: Frozen</li>
 </ul>
 </li>
 <li>Fifth component<ul>
-<li>0.0488 varience</li>
-<li>Feature whose weight is positive and absolute value of weight is higher than 0.5: Milk</li>
-<li>Feature whose weight is negative and absolute value of weight is higher than 0.5: Milk</li>
-<li>This dimension tends to represent spending for Milk.</li>
+<li>0.0488 variance</li>
+<li>Customer purchase a lot: Milk</li>
+<li>Customer purchase a little: Fresh, Grocery and Frozen</li>
+<li>Customer would not like to purchase: Detergents_paper and delicatessen</li>
 </ul>
 </li>
 <li>Sixth component<ul>
-<li>0.0233 varience</li>
-<li>Feature whose weight is positive and absolute value of weight is higher than 0.5: Grocery</li>
-<li>Feature whose weight is negative and absolute value of weight is higher than 0.5: Milk</li>
-<li>This dimension tends to represent spending for Grocery.</li>
+<li>0.0233 variance</li>
+<li>Customer purchase a lot: Grocery</li>
+<li>Customer purchase a little: Frozen</li>
+<li>Customer would not like to purchase: Fresh, Detergents_paper and delicatessen</li>
+<li>Customer never purchase: Milk</li>
 </ul>
 </li>
 </ol>
@@ -15239,7 +15252,7 @@ Once you have performed this implementation, the dataset will be stored in the v
 </li>
 <li><p>In observatoin:</p>
 <ul>
-<li>The first customer: dimension 1 and dimension 2 is high. =&gt; Regarding to spending category, it is not consistent becuase dimension 1 represent product which is not food. Regarding to establishment, it may be consistent, because we can buy product which is not food in markets.</li>
+<li>The first customer: dimension 1 and dimension 2 is high. =&gt; Regarding to spending category, it is consistent because markets sell various of products and need to purchase various of products from wholesale.</li>
 <li>The second customer: all dimension is very low. =&gt; It is consistent, because initial establishment is retailers.</li>
 <li>The third customer: dimension 4 is high . =&gt; It is consistent, because dimension 4 represents Delicatessen and the initial establishment is delis.</li>
 </ul>
@@ -16152,18 +16165,19 @@ Sample point 2 predicted to be in Cluster 1 =&gt; markets</p>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Answer:</strong></p>
+<p><strong>Refined Answer:</strong></p>
 <ul>
 <li>Can we assume the change affects all customers equally? <ul>
-<li>No</li>
+<li>No. In theory, the change depends on the product characteristic bought by customers. For example, it may have negative effect for those customers who buy perishable product.</li>
 </ul>
 </li>
 <li>How can we determine which group of customers it affects the most?<ul>
-<li>Inspect the spending of each category of each segment.</li>
+<li>Step 1. Run A/B test in each group of customers. In each group, randomly select a half of customers to deliver service without any change (5 days a week), and deliver service 3 days a week to the rest customers of same group. (There are two sub groups in each group.) If A/B test lasts for one month, we can compare month spending between the two sub groups. We can subtract the average spending of customers with delivery service change from average spending of customers without delivery service change to get a value, and divide the value by average spending of customers without delivery service change to get a metric to measure the effect.</li>
+<li>Step 3. We can determine which group of customers the delivery change affects most by comparing the metric value of each group.</li>
 </ul>
 </li>
-<li>How can the wholesale distributor use the customer segments to determine which customers, if any, would react positively to the change in delivery service?*<ul>
-<li>Based on the model result, the segments are retailers which has less spending in all category, and markets which has more spending in Milk, Grocery, and Detergents_Papers. For segment 0, I think there would be little impact when change 5 days a week to 3 days a week, because the segement has small spending. For Segment 1, there would be negative impact, because they buy a lot milk, which need fresh.</li>
+<li>How can the wholesale distributor use the customer segments to determine which customers, if any, would react positively to the change in delivery service?<ul>
+<li>In a customer segment, customers tends to react similarly because they have similar spending or demand in each category of product. Each category of product tends to have same perishability. By the method mentioned above, in a customer segment, if the average spending of customers with delivery service change is higher than average spending of customers without delivery service, we can infer that those customers who are in this customer segment tend to react positively on delivery service change.</li>
 </ul>
 </li>
 </ul>
